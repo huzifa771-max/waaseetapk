@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>وسيط | تسجيل الدخول</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f8fc;color:#10243e}
+.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{width:min(460px,100%);background:#fff;border-radius:22px;padding:30px;box-shadow:0 12px 40px #0b3b6818}
+.logo{font-size:30px;font-weight:800;color:#075fc9;text-align:center}.sub{text-align:center;color:#64748b;margin:8px 0 26px}
+label{display:block;font-weight:700;margin:14px 0 8px}.field{width:100%;padding:14px 15px;border:1px solid #d7e0ea;border-radius:12px;font-size:16px;outline:none}.field:focus{border-color:#075fc9;box-shadow:0 0 0 3px #075fc915}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#eef4fa;padding:5px;border-radius:13px}.tab{border:0;background:transparent;padding:11px;border-radius:10px;font-weight:700;cursor:pointer}.tab.active{background:#fff;color:#075fc9;box-shadow:0 2px 8px #0000000d}
+button.primary{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:#075fc9;color:#fff;font-size:16px;font-weight:800;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
+.msg{margin-top:14px;padding:11px 13px;border-radius:10px;background:#f1f5f9;display:none;line-height:1.6}.msg.show{display:block}.msg.error{background:#fff1f2;color:#b42318}.msg.ok{background:#ecfdf3;color:#067647}
+.otp{display:none}.otp.show{display:block}.otp input{text-align:center;letter-spacing:8px;font-size:24px;font-weight:800}.small{text-align:center;color:#64748b;font-size:13px;margin-top:12px}.link{color:#075fc9;font-weight:700;cursor:pointer}
+.role{margin-top:20px;font-size:13px;color:#64748b;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap"><main class="card">
+<div class="logo">وسيط</div><div class="sub">Waseet B2B Trade & Logistics</div>
+<div id="login">
+<div class="tabs"><button class="tab active" data-mode="phone">رقم الجوال</button><button class="tab" data-mode="email">البريد الإلكتروني</button></div>
+<label id="identityLabel">رقم الجوال</label>
+<input id="identity" class="field" dir="ltr" inputmode="tel" autocomplete="tel" placeholder="0567011034">
+<div class="role">سيتم إرسال رمز تحقق لمرة واحدة OTP للدخول بدون كلمة مرور.</div>
+<button id="send" class="primary">إرسال رمز التحقق</button>
+</div>
+<div id="otp" class="otp">
+<label>رمز التحقق</label>
+<input id="code" class="field" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="••••••">
+<button id="verify" class="primary">تحقق ودخول</button>
+<div class="small">لم يصلك الرمز؟ <span id="resend" class="link">إعادة الإرسال</span></div>
+</div>
+<div id="msg" class="msg"></div>
+</main></div>
+<script type="module">
+import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
+const SUPABASE_URL='https://zwsvlrptnlchajqgqtvm.supabase.co';
+const SUPABASE_KEY='sb_publishable_1S4CCi-cGjyJE7PO87fueg_H8NFkZrA';
+const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
+let mode='phone', destination='';
+const $=id=>document.getElementById(id), msg=$('msg');
+function show(text,type=''){msg.textContent=text;msg.className='msg show '+type}
+function normalizePhone(v){
+ v=v.trim().replace(/[\s()-]/g,'');
+ if(/^05\d{8}$/.test(v)) return '+966'+v.slice(1);
+ if(/^5\d{8}$/.test(v)) return '+966'+v;
+ if(/^\+9665\d{8}$/.test(v)) return v;
+ return null;
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ mode=b.dataset.mode;$('identity').value='';
+ $('identity').type=mode==='email'?'email':'tel';$('identity').inputMode=mode==='email'?'email':'tel';
+ $('identity').placeholder=mode==='email'?'huzifa771@gmail.com':'0567011034';
+ $('identityLabel').textContent=mode==='email'?'البريد الإلكتروني':'رقم الجوال';
+});
+async function sendOtp(){
+ const raw=$('identity').value.trim(); let payload;
+ if(mode==='email'){
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) return show('أدخل بريدًا إلكترونيًا صحيحًا.','error');
+   destination=raw.toLowerCase();payload={email:destination,options:{shouldCreateUser:true}};
+ }else{
+   destination=normalizePhone(raw);
+   if(!destination)return show('أدخل رقمًا سعوديًا مثل 0567011034 أو +966567011034.','error');
+   payload={phone:destination,options:{shouldCreateUser:true,channel:'sms'}};
+ }
+ $('send').disabled=true;
+ const {error}=await supabase.auth.signInWithOtp(payload);
+ $('send').disabled=false;
+ if(error)return show('تعذر إرسال رمز التحقق: '+error.message,'error');
+ $('login').style.display='none';$('otp').classList.add('show');
+ show('تم إرسال رمز التحقق إلى '+(mode==='email'?destination:'رقم الجوال المسجل.'),'ok');
+ $('code').focus();
+}
+async function verify(){
+ const token=$('code').value.trim();
+ if(!/^\d{6}$/.test(token))return show('أدخل رمز التحقق المكون من 6 أرقام.','error');
+ $('verify').disabled=true;
+ const args=mode==='email'?{email:destination,token,type:'email'}:{phone:destination,token,type:'sms'};
+ const {data,error}=await supabase.auth.verifyOtp(args);
+ $('verify').disabled=false;
+ if(error)return show('رمز التحقق غير صحيح أو منتهي: '+error.message,'error');
+ show('تم تسجيل الدخول بنجاح.','ok');
+ setTimeout(()=>{location.href='/'},700);
+}
+$('send').onclick=sendOtp;$('verify').onclick=verify;
+$('resend').onclick=sendOtp;
+$('code').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,6)});
+supabase.auth.getSession().then(({data})=>{if(data.session)show('أنت مسجل الدخول بالفعل.','ok')});
+</script>
+</body></html>
