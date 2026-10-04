@@ -1,8 +1,11 @@
-name: Build Waseet APK
+name: Build and Release Waseet APK
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   android:
@@ -53,12 +56,22 @@ jobs:
         shell: bash
         run: |
           test -s android/app/build/outputs/apk/debug/app-debug.apk
-          unzip -l android/app/build/outputs/apk/debug/app-debug.apk | grep -E '(^|/)lib/armeabi-v7a/' || true
           echo "APK created successfully:"
           ls -lh android/app/build/outputs/apk/debug/app-debug.apk
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
         with:
           name: waseet-debug-apk-32bit
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Create GitHub Release and attach APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: v12.0.0-32bit.${{ github.run_number }}
+        run: |
+          gh release create "$TAG_NAME" \
+            android/app/build/outputs/apk/debug/app-debug.apk \
+            --title "Waseet 32-bit APK $TAG_NAME" \
+            --generate-notes
