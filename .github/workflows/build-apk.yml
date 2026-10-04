@@ -15,6 +15,9 @@ jobs:
       - run: npm install
       - run: npx cap add android
       - run: npx cap sync android
+      - name: Configure 32-bit Android APK
+        run: |
+          printf '\nandroid { defaultConfig { ndk { abiFilters "armeabi-v7a" } } }\n' >> android/app/build.gradle
       - run: cd android && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
         with:
