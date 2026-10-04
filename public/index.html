@@ -20,9 +20,9 @@ button.primary{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12
 <div class="wrap"><main class="card">
 <div class="logo">وسيط</div><div class="sub">Waseet B2B Trade & Logistics</div>
 <div id="login">
-<div class="tabs"><button class="tab active" data-mode="phone">رقم الجوال</button><button class="tab" data-mode="email">البريد الإلكتروني</button></div>
-<label id="identityLabel">رقم الجوال</label>
-<input id="identity" class="field" dir="ltr" inputmode="tel" autocomplete="tel" placeholder="0567011034">
+<div class="role">دخول الإدارة محمي بالبريد الإلكتروني ورمز OTP حقيقي.</div>
+<label id="identityLabel">البريد الإلكتروني</label>
+<input id="identity" class="field" dir="ltr" type="email" inputmode="email" autocomplete="email" value="huzifa771@gmail.com" readonly>
 <div class="role">سيتم إرسال رمز تحقق لمرة واحدة OTP للدخول بدون كلمة مرور.</div>
 <button id="send" class="primary">إرسال رمز التحقق</button>
 </div>
@@ -39,7 +39,7 @@ import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const SUPABASE_URL='https://zwsvlrptnlchajqgqtvm.supabase.co';
 const SUPABASE_KEY='sb_publishable_1S4CCi-cGjyJE7PO87fueg_H8NFkZrA';
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
-let mode='phone', destination='';
+const ADMIN_EMAIL='huzifa771@gmail.com'; let mode='email', destination=ADMIN_EMAIL;
 const $=id=>document.getElementById(id), msg=$('msg');
 function show(text,type=''){msg.textContent=text;msg.className='msg show '+type}
 function normalizePhone(v){
@@ -49,30 +49,14 @@ function normalizePhone(v){
  if(/^\+9665\d{8}$/.test(v)) return v;
  return null;
 }
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
- document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');
- mode=b.dataset.mode;$('identity').value='';
- $('identity').type=mode==='email'?'email':'tel';$('identity').inputMode=mode==='email'?'email':'tel';
- $('identity').placeholder=mode==='email'?'huzifa771@gmail.com':'0567011034';
- $('identityLabel').textContent=mode==='email'?'البريد الإلكتروني':'رقم الجوال';
-});
 async function sendOtp(){
- const raw=$('identity').value.trim(); let payload;
- if(mode==='email'){
-   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) return show('أدخل بريدًا إلكترونيًا صحيحًا.','error');
-   destination=raw.toLowerCase();payload={email:destination,options:{shouldCreateUser:true}};
- }else{
-   destination=normalizePhone(raw);
-   if(!destination)return show('أدخل رقمًا سعوديًا مثل 0567011034 أو +966567011034.','error');
-   payload={phone:destination,options:{shouldCreateUser:true,channel:'sms'}};
- }
+ destination=ADMIN_EMAIL;
  $('send').disabled=true;
- const {error}=await supabase.auth.signInWithOtp(payload);
+ const {error}=await supabase.auth.signInWithOtp({email:destination,options:{shouldCreateUser:true}});
  $('send').disabled=false;
  if(error)return show('تعذر إرسال رمز التحقق: '+error.message,'error');
  $('login').style.display='none';$('otp').classList.add('show');
- show('تم إرسال رمز التحقق إلى '+(mode==='email'?destination:'رقم الجوال المسجل.'),'ok');
- $('code').focus();
+ show('تم إرسال رمز OTP إلى بريد الإدارة.','ok'); $('code').focus();
 }
 async function verify(){
  const token=$('code').value.trim();
