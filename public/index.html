@@ -67,7 +67,7 @@ async function verify(){
  $('verify').disabled=false;
  if(error)return show('رمز التحقق غير صحيح أو منتهي: '+error.message,'error');
  show('تم تسجيل الدخول بنجاح.','ok');
- setTimeout(()=>{location.href='/'},700);
+ setTimeout(()=>{location.href='/app.html'},700);
 }
 $('send').onclick=sendOtp;$('verify').onclick=verify;
 $('resend').onclick=sendOtp;
