@@ -6,4 +6,6 @@
 <div class="card"><span class="status">مهمة نشطة</span><h1 class="task">تحميل ونقل WST-001</h1><div class="row"><span>المورد</span><b>مورد موثّق</b></div><div class="row"><span>الوجهة</span><b>مستودع التاجر</b></div><div class="row"><span>الحمولة</span><b>أرز بسمتي · 1,000 كجم</b></div><div class="row"><span>المبلغ</span><b>18,500 ريال</b></div><div class="actions"><button>بدء التحميل</button><button class="secondary">فتح الخريطة</button><button class="secondary">اتصال</button></div></div>
 <div class="card"><h2>توثيق التحميل</h2><p>مطابقة الفاتورة مع الحمولة، تصوير البضاعة، تسجيل لوحة المركبة، ثم تأكيد OTP.</p><div class="actions"><button>رفع صور البضاعة</button><button>تأكيد المطابقة</button><button>إدخال OTP</button></div></div>
 <div class="card"><h2>التسليم</h2><p>عند الوصول: مطابقة الحمولة، توثيق الحالة، ثم إثبات التسليم.</p><div class="actions"><button>تأكيد الوصول</button><button>إثبات التسليم</button></div></div>
-</main></html>
+</main><script src="/shared/supabase.js"></script>
+<script>WaseetData.session().then(s=>{document.body.dataset.connected=s?"authenticated":"guest";});</script>
+</html>
