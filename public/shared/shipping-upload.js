@@ -12,7 +12,7 @@
     const d=document.createElement('input');d.id='shipDistance';d.type='number';d.min='0';d.step='0.1';d.placeholder='المسافة بالكيلومتر (للتسعير الآلي)';
     const w=document.getElementById('shipWeight');w?.parentNode.insertBefore(d,w.nextSibling);
   }
-  const original=window.requestShipping;
+  const original=window.requestShipping; const originalRequest=WaseetShipping.request; WaseetShipping.request=async function(dealId,data){data=data||{};data.distance_km=data.distance_km??(+document.getElementById('shipDistance')?.value||null);return originalRequest.call(WaseetShipping,dealId,data)};
   window.requestShipping=async function(){
     const deal=document.getElementById('shipDeal')?.value;
     const file=document.getElementById('shipInvoiceFile')?.files?.[0];
