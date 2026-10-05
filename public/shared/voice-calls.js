@@ -21,7 +21,7 @@
   async function signal(callId,kind,payload){return waseetClient.from('voice_call_signals').insert({call_id:callId,sender_id:(await waseetClient.auth.getUser()).data.user.id,kind,payload})}
   async function finish(status='ended',reason=null){
     if(state.callId){await rpc('update_voice_call',{p_call_id:state.callId,p_status:status,p_ended_reason:reason,p_duration_seconds:state.startedAt?Math.floor((Date.now()-state.startedAt)/1000):null}).catch(()=>{});}
-    if(state.channel){try{await state.channel.unsubscribe()}catch(e){}}
+    if(state.channel){try{await state.channel.unsubscribe()}catch(e){}} if(state.answerChannel){try{await state.answerChannel.unsubscribe()}catch(e){}} if(state.iceChannel){try{await state.iceChannel.unsubscribe()}catch(e){}}
     if(state.pc)state.pc.close();
     if(state.local)state.local.getTracks().forEach(t=>t.stop());
     Object.assign(state,{pc:null,callId:null,channel:null,startedAt:null,local:null,role:null});
@@ -54,10 +54,9 @@
     const sub=waseetClient.channel('waseet-call-answer-'+state.callId);
     await sub.subscribe();
     sub.on('postgres_changes',{event:'INSERT',schema:'public',table:'voice_call_signals',filter:'call_id=eq.'+state.callId},async(payload)=>{
-      const row=payload.new;if(row.kind==='answer'&&row.sender_id!==me?.id){
-        await pc.setRemoteDescription(row.payload.sdp);
-        await rpc('update_voice_call',{p_call_id:state.callId,p_status:'ongoing'});d.querySelector('#vcState').textContent='المكالمة متصلة';
-      }
+      const row=payload.new;if(row.sender_id=== (await waseetClient.auth.getUser()).data.user.id) return;
+      if(row.kind==='answer'){await pc.setRemoteDescription(row.payload.sdp);await rpc('update_voice_call',{p_call_id:state.callId,p_status:'ongoing'});d.querySelector('#vcState').textContent='المكالمة متصلة';}
+      if(row.kind==='ice'&&row.payload?.candidate)try{await pc.addIceCandidate(row.payload.candidate)}catch(e){}
     });
     state.answerChannel=sub;
     return state.callId;
@@ -75,7 +74,8 @@
     const ans=await pc.createAnswer();await pc.setLocalDescription(ans);
     await signal(callId,'answer',{sdp:ans});
     await rpc('update_voice_call',{p_call_id:callId,p_status:'accepted'});
-    for(const x of sigs.filter(x=>x.kind==='ice'&&x.sender_id!==me?.id)){try{await pc.addIceCandidate(x.payload.candidate)}catch(e){}}
+    for(const x of sigs.filter(x=>x.kind==='ice'&&x.sender_id!==(await waseetClient.auth.getUser()).data.user.id)){try{await pc.addIceCandidate(x.payload.candidate)}catch(e){}}
+    const iceSub=waseetClient.channel('waseet-call-ice-'+callId);await iceSub.subscribe();iceSub.on('postgres_changes',{event:'INSERT',schema:'public',table:'voice_call_signals',filter:'call_id=eq.'+callId},async p=>{if(p.new.kind==='ice'&&p.new.sender_id!==(await waseetClient.auth.getUser()).data.user.id)try{await pc.addIceCandidate(p.new.payload.candidate)}catch(e){}});state.iceChannel=iceSub;
   }
   async function reject(callId){await rpc('update_voice_call',{p_call_id:callId,p_status:'rejected',p_ended_reason:'callee_rejected'});document.getElementById('waseetVoiceCall')?.remove()}
   async function enableIncoming(){
