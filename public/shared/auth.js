@@ -31,6 +31,6 @@ window.WaseetAuthReady=(async()=>{
  loadOnce("/shared/shipping-upload.js","waseet-shipping-upload-script");
  await new Promise(r=>setTimeout(r,300));
  const s=await WaseetAuth.session();
- if(s&&window.WaseetVoice?.enableIncoming)window.WaseetVoice.enableIncoming().catch(()=>{});
+ if(s&&window.WaseetVoice?.enableIncoming)window.WaseetVoice.enableIncoming().catch(()=>{}); if(s&&window.WaseetQuickAuth?.run&&document.getElementById('app')&&!document.getElementById('app').classList.contains('hide'))window.WaseetQuickAuth.run().catch(()=>{});
 })();
 })();
