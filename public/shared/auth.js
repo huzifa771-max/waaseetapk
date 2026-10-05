@@ -30,3 +30,5 @@ window.WaseetData={
 (function(){if(!document.querySelector('script[data-waseet-quick-auth]')){const s=document.createElement('script');s.src='/shared/quick-auth.js';s.dataset.waseetQuickAuth='1';document.head.appendChild(s)}})();
 
 (function(){const s=document.createElement('script');s.src='/shared/shipping-upload.js';document.head.appendChild(s)})();
+
+setTimeout(function(){if(window.quoteShipping&&!window.__waseetAutoQuoteHook){window.__waseetAutoQuoteHook=true;const old=window.quoteShipping;window.quoteShipping=async function(id){const s=await WaseetShipping.settings();if(s&&s.pricing_mode==='automatic'){const r=await WaseetShipping.quoteAutomatic(id);alert(r.error?r.error.message:'تم حساب السعر آلياً');if(window.loadShippingAdmin)window.loadShippingAdmin();return}return old(id)}}},800);
