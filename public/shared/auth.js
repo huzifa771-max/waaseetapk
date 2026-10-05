@@ -28,3 +28,5 @@ window.WaseetData={
 })();
 </script>
 (function(){if(!document.querySelector('script[data-waseet-quick-auth]')){const s=document.createElement('script');s.src='/shared/quick-auth.js';s.dataset.waseetQuickAuth='1';document.head.appendChild(s)}})();
+
+(function(){const s=document.createElement('script');s.src='/shared/shipping-upload.js';document.head.appendChild(s)})();
