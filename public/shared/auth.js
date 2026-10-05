@@ -27,3 +27,4 @@ window.WaseetData={
 };
 })();
 </script>
+(function(){if(!document.querySelector('script[data-waseet-quick-auth]')){const s=document.createElement('script');s.src='/shared/quick-auth.js';s.dataset.waseetQuickAuth='1';document.head.appendChild(s)}})();
