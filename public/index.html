@@ -2,76 +2,123 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>وسيط | تسجيل الدخول</title>
+<title>وسيط | دخول الإدارة</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f8fc;color:#10243e}
-.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.card{width:min(460px,100%);background:#fff;border-radius:22px;padding:30px;box-shadow:0 12px 40px #0b3b6818}
-.logo{font-size:30px;font-weight:800;color:#075fc9;text-align:center}.sub{text-align:center;color:#64748b;margin:8px 0 26px}
-label{display:block;font-weight:700;margin:14px 0 8px}.field{width:100%;padding:14px 15px;border:1px solid #d7e0ea;border-radius:12px;font-size:16px;outline:none}.field:focus{border-color:#075fc9;box-shadow:0 0 0 3px #075fc915}
+.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:min(460px,100%);background:#fff;border-radius:22px;padding:30px;box-shadow:0 12px 40px #0b3b6818}
+.logo{font-size:30px;font-weight:800;color:#075fc9;text-align:center}.sub{text-align:center;color:#64748b;margin:8px 0 22px}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#eef4fa;padding:5px;border-radius:13px}.tab{border:0;background:transparent;padding:11px;border-radius:10px;font-weight:700;cursor:pointer}.tab.active{background:#fff;color:#075fc9;box-shadow:0 2px 8px #0000000d}
+label{display:block;font-weight:700;margin:14px 0 8px}.field{width:100%;padding:14px 15px;border:1px solid #d7e0ea;border-radius:12px;font-size:16px;outline:none}.field:focus{border-color:#075fc9;box-shadow:0 0 0 3px #075fc915}
 button.primary{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:#075fc9;color:#fff;font-size:16px;font-weight:800;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
 .msg{margin-top:14px;padding:11px 13px;border-radius:10px;background:#f1f5f9;display:none;line-height:1.6}.msg.show{display:block}.msg.error{background:#fff1f2;color:#b42318}.msg.ok{background:#ecfdf3;color:#067647}
-.otp{display:none}.otp.show{display:block}.otp input{text-align:center;letter-spacing:8px;font-size:24px;font-weight:800}.small{text-align:center;color:#64748b;font-size:13px;margin-top:12px}.link{color:#075fc9;font-weight:700;cursor:pointer}
-.role{margin-top:20px;font-size:13px;color:#64748b;text-align:center}
+.otp{display:none}.otp.show{display:block}.otp input{text-align:center;letter-spacing:8px;font-size:24px;font-weight:800}.small{text-align:center;color:#64748b;font-size:13px;margin-top:12px}.link{color:#075fc9;font-weight:700;cursor:pointer}.hint{font-size:13px;color:#64748b;line-height:1.6;margin-top:10px}.timer{font-variant-numeric:tabular-nums;font-weight:700}
 </style>
 </head>
 <body>
 <div class="wrap"><main class="card">
-<div class="logo">وسيط</div><div class="sub">Waseet B2B Trade & Logistics</div>
-<div id="login">
-<div class="role">دخول الإدارة محمي بالبريد الإلكتروني ورمز OTP حقيقي.</div>
-<label id="identityLabel">البريد الإلكتروني</label>
-<input id="identity" class="field" dir="ltr" type="email" inputmode="email" autocomplete="email" value="huzifa771@gmail.com" readonly>
-<div class="role">سيتم إرسال رمز تحقق لمرة واحدة OTP للدخول بدون كلمة مرور.</div>
+<div class="logo">وسيط</div><div class="sub">Waseet B2B Trade & Logistics · Admin</div>
+<div class="tabs"><button id="otpTab" class="tab active">OTP بالبريد</button><button id="passwordTab" class="tab">كلمة المرور</button></div>
+
+<section id="otpPanel">
+<label>البريد الإداري</label>
+<input id="identity" class="field" dir="ltr" type="email" autocomplete="email" value="huzifa771@gmail.com" readonly>
+<div class="hint">سيتم إرسال رمز دخول لمرة واحدة. إذا كان قالب البريد الحالي في Supabase يرسل رابط Magic Link بدلاً من الرقم، افتح الرابط من البريد؛ وسنحوّل القالب إلى OTP رقمي في المرحلة التالية.</div>
 <button id="send" class="primary">إرسال رمز التحقق</button>
-</div>
 <div id="otp" class="otp">
 <label>رمز التحقق</label>
 <input id="code" class="field" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="••••••">
 <button id="verify" class="primary">تحقق ودخول</button>
-<div class="small">لم يصلك الرمز؟ <span id="resend" class="link">إعادة الإرسال</span></div>
+<div class="small">إعادة الإرسال بعد <span id="timer" class="timer">60</span> ثانية · <span id="resend" class="link">إعادة الإرسال الآن</span></div>
 </div>
+</section>
+
+<section id="passwordPanel" style="display:none">
+<label>البريد الإداري</label><input id="passwordEmail" class="field" dir="ltr" type="email" value="huzifa771@gmail.com" readonly>
+<label>كلمة المرور</label><input id="password" class="field" dir="ltr" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور المهيأة للحساب">
+<button id="passwordLogin" class="primary">دخول</button>
+<div class="hint">هذا مسار بديل فقط إذا كان لحساب الإدارة كلمة مرور مهيأة في Supabase Auth. لا يتم إنشاء أو تخزين كلمة المرور داخل الواجهة.</div>
+</section>
+
 <div id="msg" class="msg"></div>
 </main></div>
 <script type="module">
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const SUPABASE_URL='https://zwsvlrptnlchajqgqtvm.supabase.co';
-const SUPABASE_KEY='sb_publishable_1S4CCi-cGjyJE7PO87fueg_H8NFkZrA';
+const SUPABASE_KEY='sb_publishable_1S4CCi-cGjyJE7PO87fueg_H8NFkzA';
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
-const ADMIN_EMAIL='huzifa771@gmail.com'; let mode='email', destination=ADMIN_EMAIL;
+const ADMIN_EMAIL='huzifa771@gmail.com';
 const $=id=>document.getElementById(id), msg=$('msg');
+let resendUntil=0, timerHandle=null;
+
 function show(text,type=''){msg.textContent=text;msg.className='msg show '+type}
-function normalizePhone(v){
- v=v.trim().replace(/[\s()-]/g,'');
- if(/^05\d{8}$/.test(v)) return '+966'+v.slice(1);
- if(/^5\d{8}$/.test(v)) return '+966'+v;
- if(/^\+9665\d{8}$/.test(v)) return v;
- return null;
+function friendlyError(error){
+  const m=(error?.message||'').toLowerCase();
+  if(m.includes('rate limit')||m.includes('too many'))return 'تم تجاوز حد الإرسال مؤقتاً. انتظر قليلاً ثم أعد المحاولة.';
+  if(m.includes('invalid login credentials'))return 'بيانات كلمة المرور غير صحيحة أو لم يتم تفعيل كلمة مرور لهذا الحساب.';
+  if(m.includes('email not confirmed'))return 'البريد غير مؤكد في Supabase Auth.';
+  if(m.includes('otp')&&m.includes('expired'))return 'رمز OTP منتهي. اطلب رمزاً جديداً ولا تستخدم رمزاً قديماً.';
+  return error?.message||'حدث خطأ غير معروف.';
 }
-async function sendOtp(){
- destination=ADMIN_EMAIL;
- $('send').disabled=true;
- const {error}=await supabase.auth.signInWithOtp({email:destination,options:{shouldCreateUser:true}});
- $('send').disabled=false;
- if(error)return show('تعذر إرسال رمز التحقق: '+error.message,'error');
- $('login').style.display='none';$('otp').classList.add('show');
- show('تم إرسال رمز OTP إلى بريد الإدارة.','ok'); $('code').focus();
+async function ensureAdmin(){
+  const {data:{session}}=await supabase.auth.getSession();
+  if(!session)return false;
+  const {data:profile}=await supabase.from('profiles').select('role').eq('id',session.user.id).maybeSingle();
+  if(profile?.role!=='admin'){
+    await supabase.auth.signOut();
+    show('الحساب مسجل الدخول لكنه غير مصرح له بدخول الإدارة.','error');
+    return false;
+  }
+  location.replace('/admin.html'); return true;
+}
+function startTimer(){
+  resendUntil=Date.now()+60000;
+  clearInterval(timerHandle);
+  const tick=()=>{
+    const left=Math.max(0,Math.ceil((resendUntil-Date.now())/1000));
+    $('timer').textContent=left;
+    $('resend').style.pointerEvents=left?'none':'auto';
+    $('resend').style.opacity=left?'0.45':'1';
+    if(!left)clearInterval(timerHandle);
+  };
+  tick();timerHandle=setInterval(tick,1000);
+}
+async function sendOtp(force=false){
+  if(!force && Date.now()<resendUntil)return;
+  $('send').disabled=true;$('resend').style.pointerEvents='none';
+  const {error}=await supabase.auth.signInWithOtp({email:ADMIN_EMAIL,options:{shouldCreateUser:false,emailRedirectTo:new URL('/admin.html',location.origin).href}});
+  $('send').disabled=false;
+  if(error){show('تعذر إرسال رمز الدخول: '+friendlyError(error),'error');return}
+  $('otp').classList.add('show');$('code').focus();startTimer();
+  show('تم قبول طلب الإرسال من Supabase. تحقق من البريد.','ok');
 }
 async function verify(){
- const token=$('code').value.trim();
- if(!/^\d{6}$/.test(token))return show('أدخل رمز التحقق المكون من 6 أرقام.','error');
- $('verify').disabled=true;
- const args=mode==='email'?{email:destination,token,type:'email'}:{phone:destination,token,type:'sms'};
- const {data,error}=await supabase.auth.verifyOtp(args);
- $('verify').disabled=false;
- if(error)return show('رمز التحقق غير صحيح أو منتهي: '+error.message,'error');
- show('تم تسجيل الدخول بنجاح.','ok');
- setTimeout(()=>{location.href='/app.html'},700);
+  const token=$('code').value.trim();
+  if(!/^\d{6}$/.test(token))return show('أدخل رمزاً مكوناً من 6 أرقام.','error');
+  $('verify').disabled=true;
+  const {data,error}=await supabase.auth.verifyOtp({email:ADMIN_EMAIL,token,type:'email'});
+  $('verify').disabled=false;
+  if(error)return show('فشل التحقق: '+friendlyError(error),'error');
+  if(!data.session)return show('تم التحقق لكن لم تُنشأ جلسة دخول.','error');
+  await ensureAdmin();
 }
-$('send').onclick=sendOtp;$('verify').onclick=verify;
-$('resend').onclick=sendOtp;
-$('code').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,6)});
-supabase.auth.getSession().then(({data})=>{if(data.session)show('أنت مسجل الدخول بالفعل.','ok')});
+async function passwordLogin(){
+  const password=$('password').value;
+  if(!password)return show('أدخل كلمة المرور.','error');
+  $('passwordLogin').disabled=true;
+  const {data,error}=await supabase.auth.signInWithPassword({email:ADMIN_EMAIL,password});
+  $('passwordLogin').disabled=false;
+  if(error)return show('تعذر تسجيل الدخول: '+friendlyError(error),'error');
+  if(!data.session)return show('لم تُنشأ جلسة دخول.','error');
+  await ensureAdmin();
+}
+$('send').onclick=()=>sendOtp(false);
+$('resend').onclick=()=>sendOtp(true);
+$('verify').onclick=verify;
+$('passwordLogin').onclick=passwordLogin;
+$('code').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));
+$('otpTab').onclick=()=>{$('otpTab').classList.add('active');$('passwordTab').classList.remove('active');$('otpPanel').style.display='block';$('passwordPanel').style.display='none'};
+$('passwordTab').onclick=()=>{$('passwordTab').classList.add('active');$('otpTab').classList.remove('active');$('passwordPanel').style.display='block';$('otpPanel').style.display='none'};
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')passwordLogin()});
+supabase.auth.getSession().then(({data})=>{if(data.session)ensureAdmin()});
 </script>
 </body></html>
