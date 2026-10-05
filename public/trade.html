@@ -13,4 +13,6 @@
 </section><aside>
 <div class="card"><h3>ملخص الحساب</h3><div class="cards"><div class="metric"><div class="num">12</div>طلبات</div><div class="metric"><div class="num">4</div>صفقات</div><div class="metric"><div class="num">1</div>شحنة</div></div></div>
 <div class="card"><h3>المحادثات</h3><p>المورد · آخر رسالة قبل 2 دقيقة</p><button>فتح المحادثة</button></div>
-</aside></div></main></html>
+</aside></div></main><script src="/shared/supabase.js"></script>
+<script>WaseetData.session().then(s=>{document.body.dataset.connected=s?"authenticated":"guest";});</script>
+</html>
