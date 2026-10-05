@@ -6,4 +6,6 @@
 <h1>لوحة التحكم</h1><div class="cards"><div class="card"><div class="num">248</div>المستخدمون</div><div class="card"><div class="num">37</div>الطلبات</div><div class="card"><div class="num">18</div>الصفقات النشطة</div><div class="card"><div class="num">2</div>نزاعات تحتاج مراجعة</div></div>
 <div class="card"><h2>الصفقات المباشرة</h2><table class="table"><tr><th>الطلب</th><th>الأطراف</th><th>المرحلة</th><th>الحالة</th></tr><tr><td>WST-001</td><td>تاجر ↔ مورد</td><td>التفاوض</td><td><span class="tag">نشطة</span></td></tr><tr><td>WST-002</td><td>تاجر ↔ مورد ↔ سائق</td><td>النقل</td><td><span class="tag">تحت المتابعة</span></td></tr></table></div>
 <div class="card"><h2>مركز الرقابة</h2><p>المستخدمون · التحقق · المدفوعات · الشحن · السائقون · النزاعات · المحادثات · الفواتير · سجل العمليات.</p></div>
-</main></html>
+</main><script src="/shared/supabase.js"></script>
+<script>WaseetData.session().then(s=>{document.body.dataset.connected=s?"authenticated":"guest";});</script>
+</html>
