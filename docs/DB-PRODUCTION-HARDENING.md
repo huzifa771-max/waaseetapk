@@ -1,0 +1,10 @@
+-- Waseet production hardening patch applied to project zwsvlrptnlchajqgqtvm
+-- Includes:
+-- 1) shipping_settings + shipping_rate_rules
+-- 2) shipment request/pricing/location fields
+-- 3) authenticated-only RLS
+-- 4) private security-definer helpers for RLS recursion avoidance
+-- 5) deal and shipment lifecycle guards
+-- 6) operational indexes
+--
+-- The live database was updated directly and verified after deployment.
