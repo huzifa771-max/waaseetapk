@@ -16,6 +16,11 @@ window.WaseetData={
  async requests(){return (await c.from("purchase_requests").select("*").order("created_at",{ascending:false})).data||[]},
  async products(){return (await c.from("products").select("*").eq("status","active").order("created_at",{ascending:false})).data||[]},
  async messages(id){return (await c.from("messages").select("*").eq("deal_id",id).order("created_at",{ascending:true})).data||[]},
+ async shipment(id){return (await c.from("shipments").select("*").eq("deal_id",id).maybeSingle()).data},
+ async inspection(id){return (await c.from("inspections").select("*").eq("deal_id",id).maybeSingle()).data},
+ async events(id){return (await c.from("deal_events").select("*").eq("deal_id",id).order("created_at",{ascending:true})).data||[]},
+ async payment(id){return (await c.from("payments").select("*").eq("deal_id",id).order("created_at",{ascending:false}).limit(1).maybeSingle()).data},
+ async recordEvent(id,type,details={}){const s=await this.session();return c.from("deal_events").insert({deal_id:id,actor_id:s?.user?.id,event_type:type,details})},
  async sendMessage(id,body){const s=await WaseetAuth.session();return c.from("messages").insert({deal_id:id,sender_id:s.user.id,body})},
  watchDeals(cb){return c.channel("waseet-deals").on("postgres_changes",{event:"*",schema:"public",table:"deals"},cb).subscribe()},
  watchMessages(id,cb){return c.channel("waseet-messages-"+id).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"deal_id=eq."+id},cb).subscribe()}
