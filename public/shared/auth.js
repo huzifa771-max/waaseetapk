@@ -4,8 +4,8 @@ window.WASEET_BUILD_VERSION="14.0.2-email-otp-fixed";
 window.WaseetAuth={
  async session(){return (await c.auth.getSession()).data.session;},
  async profile(){const s=await this.session();if(!s)return null;return (await c.from("profiles").select("*").eq("id",s.user.id).maybeSingle()).data;},
- async sendEmailOtp(email){email=String(email||"").trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return {data:null,error:new Error("البريد الإلكتروني غير صالح")};try{return await c.auth.signInWithOtp({email,options:{shouldCreateUser:true}})}catch(e){return {data:null,error:e}}},,
- async verifyEmailOtp(email,token){email=String(email||"").trim().toLowerCase();token=String(token||"").replace(/\D/g,"").slice(0,6);if(token.length!==6)return {data:null,error:new Error("رمز التحقق يجب أن يتكون من 6 أرقام")};try{return await c.auth.verifyOtp({email,token,type:"email"})}catch(e){return {data:null,error:e}}},,
+ async sendEmailOtp(email){email=String(email||"").trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return {data:null,error:new Error("البريد الإلكتروني غير صالح")};try{return await c.auth.signInWithOtp({email,options:{shouldCreateUser:true}})}catch(e){return {data:null,error:e}}},
+ async verifyEmailOtp(email,token){email=String(email||"").trim().toLowerCase();token=String(token||"").replace(/\D/g,"").slice(0,6);if(token.length!==6)return {data:null,error:new Error("رمز التحقق يجب أن يتكون من 6 أرقام")};try{return await c.auth.verifyOtp({email,token,type:"email"})}catch(e){return {data:null,error:e}}},
  async sendEmail(email,redirect){return this.sendEmailOtp(email)},
  async sendPhone(phone){return await c.auth.signInWithOtp({phone,options:{shouldCreateUser:true}});},
  async verifyPhone(phone,token){return await c.auth.verifyOtp({phone,token,type:"sms"});},
