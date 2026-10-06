@@ -1,5 +1,6 @@
 (function(){
 const c=window.waseetClient;
+window.WASEET_BUILD_VERSION="14.0.1-email-otp";
 window.WaseetAuth={
  async session(){return (await c.auth.getSession()).data.session;},
  async profile(){const s=await this.session();if(!s)return null;return (await c.from("profiles").select("*").eq("id",s.user.id).maybeSingle()).data;},
