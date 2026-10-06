@@ -17,12 +17,12 @@ button.primary{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12
 <body>
 <div class="wrap"><main class="card">
 <div class="logo">وسيط</div><div class="sub">Waseet B2B Trade & Logistics · Admin</div>
-<div class="tabs"><button id="otpTab" class="tab active">OTP بالبريد</button><button id="passwordTab" class="tab">كلمة المرور</button></div>
+<div class="tabs"><button id="otpTab" class="tab active">OTP بالبريد</button></div>
 
 <section id="otpPanel">
 <label>البريد الإداري</label>
 <input id="identity" class="field" dir="ltr" type="email" autocomplete="email" value="huzifa771@gmail.com" readonly>
-<div class="hint">سيتم إرسال رمز دخول لمرة واحدة. إذا كان قالب البريد الحالي في Supabase يرسل رابط Magic Link بدلاً من الرقم، افتح الرابط من البريد؛ وسنحوّل القالب إلى OTP رقمي في المرحلة التالية.</div>
+<div class="hint">سيتم إرسال رمز تحقق رقمي مكون من 6 أرقام إلى البريد الإداري. أدخل الرمز هنا لفتح حساب الإدارة. لا يتم استخدام Magic Link.</div>
 <button id="send" class="primary">إرسال رمز التحقق</button>
 <div id="otp" class="otp">
 <label>رمز التحقق</label>
@@ -32,12 +32,7 @@ button.primary{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12
 </div>
 </section>
 
-<section id="passwordPanel" style="display:none">
-<label>البريد الإداري</label><input id="passwordEmail" class="field" dir="ltr" type="email" value="huzifa771@gmail.com" readonly>
-<label>كلمة المرور</label><input id="password" class="field" dir="ltr" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور المهيأة للحساب">
-<button id="passwordLogin" class="primary">دخول</button>
-<div class="hint">هذا مسار بديل فقط إذا كان لحساب الإدارة كلمة مرور مهيأة في Supabase Auth. لا يتم إنشاء أو تخزين كلمة المرور داخل الواجهة.</div>
-</section>
+
 
 <div id="msg" class="msg"></div>
 </main></div>
