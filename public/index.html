@@ -100,7 +100,7 @@ $('send').onclick=()=>sendOtp(false);
 $('resend').onclick=()=>sendOtp(true);
 $('verify').onclick=verify;
 $('code').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));
-$('passwordTab').onclick=()=>{$('passwordTab').classList.add('active');$('otpTab').classList.remove('active');$('passwordPanel').style.display='block';$('otpPanel').style.display='none'};
+
 supabase.auth.getSession().then(({data})=>{if(data.session)ensureAdmin()});
 </script>
 </body></html>
