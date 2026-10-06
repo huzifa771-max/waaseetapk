@@ -89,5 +89,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="v14.0.0-3apps.${{ github.run_number }}"
+          TAG="v14.0.1-3apps.${{ github.run_number }}"
           gh release create "$TAG" release-assets/*.apk --title "Waseet 3 Apps $TAG" --generate-notes
