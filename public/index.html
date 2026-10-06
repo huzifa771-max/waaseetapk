@@ -96,24 +96,11 @@ async function verify(){
   if(!data.session)return show('تم التحقق لكن لم تُنشأ جلسة دخول.','error');
   await ensureAdmin();
 }
-async function passwordLogin(){
-  const password=$('password').value;
-  if(!password)return show('أدخل كلمة المرور.','error');
-  $('passwordLogin').disabled=true;
-  const {data,error}=await supabase.auth.signInWithPassword({email:ADMIN_EMAIL,password});
-  $('passwordLogin').disabled=false;
-  if(error)return show('تعذر تسجيل الدخول: '+friendlyError(error),'error');
-  if(!data.session)return show('لم تُنشأ جلسة دخول.','error');
-  await ensureAdmin();
-}
 $('send').onclick=()=>sendOtp(false);
 $('resend').onclick=()=>sendOtp(true);
 $('verify').onclick=verify;
-$('passwordLogin').onclick=passwordLogin;
 $('code').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));
-$('otpTab').onclick=()=>{$('otpTab').classList.add('active');$('passwordTab').classList.remove('active');$('otpPanel').style.display='block';$('passwordPanel').style.display='none'};
 $('passwordTab').onclick=()=>{$('passwordTab').classList.add('active');$('otpTab').classList.remove('active');$('passwordPanel').style.display='block';$('otpPanel').style.display='none'};
-$('password').addEventListener('keydown',e=>{if(e.key==='Enter')passwordLogin()});
 supabase.auth.getSession().then(({data})=>{if(data.session)ensureAdmin()});
 </script>
 </body></html>
