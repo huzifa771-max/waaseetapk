@@ -3,7 +3,9 @@ const c=window.waseetClient;
 window.WaseetAuth={
  async session(){return (await c.auth.getSession()).data.session;},
  async profile(){const s=await this.session();if(!s)return null;return (await c.from("profiles").select("*").eq("id",s.user.id).maybeSingle()).data;},
- async sendEmail(email,redirect){return await c.auth.signInWithOtp({email,options:{emailRedirectTo:redirect||location.href,shouldCreateUser:true}});},
+ async sendEmailOtp(email){return await c.auth.signInWithOtp({email,options:{shouldCreateUser:true}});},
+ async verifyEmailOtp(email,token){return await c.auth.verifyOtp({email,token,type:"email"});},
+ async sendEmail(email,redirect){return this.sendEmailOtp(email)},
  async sendPhone(phone){return await c.auth.signInWithOtp({phone,options:{shouldCreateUser:true}});},
  async verifyPhone(phone,token){return await c.auth.verifyOtp({phone,token,type:"sms"});},
  async saveProfile(p){const s=await this.session();if(!s)throw Error("لم يتم تسجيل الدخول");return await c.from("profiles").upsert({id:s.user.id,...p},{onConflict:"id"});},
