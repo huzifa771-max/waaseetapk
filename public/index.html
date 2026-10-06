@@ -7,7 +7,7 @@
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f8fc;color:#10243e}
 .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:min(460px,100%);background:#fff;border-radius:22px;padding:30px;box-shadow:0 12px 40px #0b3b6818}
 .logo{font-size:30px;font-weight:800;color:#075fc9;text-align:center}.sub{text-align:center;color:#64748b;margin:8px 0 22px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#eef4fa;padding:5px;border-radius:13px}.tab{border:0;background:transparent;padding:11px;border-radius:10px;font-weight:700;cursor:pointer}.tab.active{background:#fff;color:#075fc9;box-shadow:0 2px 8px #0000000d}
+.tabs{display:grid;grid-template-columns:1fr;gap:8px;background:#eef4fa;padding:5px;border-radius:13px}.tab{border:0;background:#fff;padding:11px;border-radius:10px;font-weight:700;color:#075fc9}
 label{display:block;font-weight:700;margin:14px 0 8px}.field{width:100%;padding:14px 15px;border:1px solid #d7e0ea;border-radius:12px;font-size:16px;outline:none}.field:focus{border-color:#075fc9;box-shadow:0 0 0 3px #075fc915}
 button.primary{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:#075fc9;color:#fff;font-size:16px;font-weight:800;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
 .msg{margin-top:14px;padding:11px 13px;border-radius:10px;background:#f1f5f9;display:none;line-height:1.6}.msg.show{display:block}.msg.error{background:#fff1f2;color:#b42318}.msg.ok{background:#ecfdf3;color:#067647}
@@ -17,23 +17,19 @@ button.primary{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12
 <body>
 <div class="wrap"><main class="card">
 <div class="logo">وسيط</div><div class="sub">Waseet B2B Trade & Logistics · Admin</div>
-<div class="tabs"><button id="otpTab" class="tab active">OTP بالبريد</button></div>
-
+<div class="tabs"><button class="tab">OTP بالبريد · الإدارة الرئيسية أو حسابات الإدارة المصرح بها</button></div>
 <section id="otpPanel">
 <label>البريد الإداري</label>
-<input id="identity" class="field" dir="ltr" type="email" autocomplete="email" value="huzifa771@gmail.com" readonly>
-<div class="hint">سيتم إرسال رمز تحقق رقمي مكون من 6 أرقام إلى البريد الإداري. أدخل الرمز هنا لفتح حساب الإدارة. لا يتم استخدام Magic Link.</div>
+<input id="identity" class="field" dir="ltr" type="email" autocomplete="email" placeholder="admin@example.com">
+<div class="hint">أدخل أي بريد تمت إضافته من الإدارة الرئيسية. سيتم إرسال رمز تحقق من 6 أرقام، ثم تدخل الرمز في الخانات المخصصة لفتح لوحة الإدارة.</div>
 <button id="send" class="primary">إرسال رمز التحقق</button>
 <div id="otp" class="otp">
-<label>رمز التحقق</label>
+<label>رمز التحقق المكون من 6 أرقام</label>
 <input id="code" class="field" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="••••••">
 <button id="verify" class="primary">تحقق ودخول</button>
 <div class="small">إعادة الإرسال بعد <span id="timer" class="timer">60</span> ثانية · <span id="resend" class="link">إعادة الإرسال الآن</span></div>
 </div>
 </section>
-
-
-
 <div id="msg" class="msg"></div>
 </main></div>
 <script type="module">
@@ -41,71 +37,37 @@ import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const SUPABASE_URL='https://zwsvlrptnlchajqgqtvm.supabase.co';
 const SUPABASE_KEY='sb_publishable_1S4CCi-cGjyJE7PO87fueg_H8NFkzA';
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
-const ADMIN_EMAIL='huzifa771@gmail.com';
+let ADMIN_EMAIL='';
 const $=id=>document.getElementById(id), msg=$('msg');
 let resendUntil=0, timerHandle=null;
-
 function show(text,type=''){msg.textContent=text;msg.className='msg show '+type}
-function friendlyError(error){
-  const m=(error?.message||'').toLowerCase();
-  if(m.includes('rate limit')||m.includes('too many'))return 'تم تجاوز حد الإرسال مؤقتاً. انتظر قليلاً ثم أعد المحاولة.';
-  if(m.includes('invalid login credentials'))return 'بيانات كلمة المرور غير صحيحة أو لم يتم تفعيل كلمة مرور لهذا الحساب.';
-  if(m.includes('email not confirmed'))return 'البريد غير مؤكد في Supabase Auth.';
-  if(m.includes('otp')&&m.includes('expired'))return 'رمز OTP منتهي. اطلب رمزاً جديداً ولا تستخدم رمزاً قديماً.';
-  return error?.message||'حدث خطأ غير معروف.';
-}
+function friendlyError(error){const m=(error?.message||'').toLowerCase();if(m.includes('rate limit')||m.includes('too many'))return 'تم تجاوز حد الإرسال مؤقتاً. انتظر قليلاً ثم أعد المحاولة.';if(m.includes('email not confirmed'))return 'البريد غير مؤكد في Supabase Auth.';if(m.includes('otp')&&m.includes('expired'))return 'رمز OTP منتهي. اطلب رمزاً جديداً.';return error?.message||'حدث خطأ غير معروف.'}
 async function ensureAdmin(){
-  const {data:{session}}=await supabase.auth.getSession();
-  if(!session)return false;
-  let {data:profile}=await supabase.from('profiles').select('role').eq('id',session.user.id).maybeSingle();
-  if(!profile){
-    const {data:created,error}=await supabase.from('profiles').upsert({id:session.user.id,role:'admin',email:ADMIN_EMAIL,verification_status:'approved'},{onConflict:'id'}).select('role').single();
-    if(error){show('تم التحقق من البريد لكن تعذر إنشاء ملف الإدارة.','error');return false;}
-    profile=created;
-  }
-  if(profile?.role!=='admin'){
-    await supabase.auth.signOut();
-    show('الحساب مسجل الدخول لكنه غير مصرح له بدخول الإدارة.','error');
-    return false;
-  }
-  location.replace('/admin.html'); return true;
+ const {data:{session}}=await supabase.auth.getSession(); if(!session)return false;
+ const {data:profile}=await supabase.from('profiles').select('role,verification_status').eq('id',session.user.id).maybeSingle();
+ if(!profile||profile.role!=='admin'||profile.verification_status==='suspended'){await supabase.auth.signOut();show('هذا البريد غير مصرح له بدخول الإدارة.','error');return false}
+ location.replace('/admin.html'); return true;
 }
-function startTimer(){
-  resendUntil=Date.now()+60000;
-  clearInterval(timerHandle);
-  const tick=()=>{
-    const left=Math.max(0,Math.ceil((resendUntil-Date.now())/1000));
-    $('timer').textContent=left;
-    $('resend').style.pointerEvents=left?'none':'auto';
-    $('resend').style.opacity=left?'0.45':'1';
-    if(!left)clearInterval(timerHandle);
-  };
-  tick();timerHandle=setInterval(tick,1000);
-}
+function startTimer(){resendUntil=Date.now()+60000;clearInterval(timerHandle);const tick=()=>{const left=Math.max(0,Math.ceil((resendUntil-Date.now())/1000));$('timer').textContent=left;$('resend').style.pointerEvents=left?'none':'auto';$('resend').style.opacity=left?'0.45':'1';if(!left)clearInterval(timerHandle)};tick();timerHandle=setInterval(tick,1000)}
 async function sendOtp(force=false){
-  if(!force && Date.now()<resendUntil)return;
-  $('send').disabled=true;$('resend').style.pointerEvents='none';
-  const {error}=await supabase.auth.signInWithOtp({email:ADMIN_EMAIL,options:{shouldCreateUser:false,emailRedirectTo:new URL('/admin.html',location.origin).href}});
-  $('send').disabled=false;
-  if(error){show('تعذر إرسال رمز الدخول: '+friendlyError(error),'error');return}
-  $('otp').classList.add('show');$('code').focus();startTimer();
-  show('تم قبول طلب الإرسال من Supabase. تحقق من البريد.','ok');
+ ADMIN_EMAIL=$('identity').value.trim().toLowerCase();
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ADMIN_EMAIL))return show('أدخل بريداً إدارياً صحيحاً.','error');
+ if(!force&&Date.now()<resendUntil)return;
+ $('send').disabled=true;$('resend').style.pointerEvents='none';
+ const {error}=await supabase.auth.signInWithOtp({email:ADMIN_EMAIL,options:{shouldCreateUser:false}});
+ $('send').disabled=false;
+ if(error){show('تعذر إرسال رمز الدخول: '+friendlyError(error),'error');return}
+ $('otp').classList.add('show');$('code').focus();startTimer();show('تم طلب رمز الدخول. تحقق من البريد ثم أدخل الأرقام الستة.','ok');
 }
 async function verify(){
-  const token=$('code').value.trim();
-  if(!/^\d{6}$/.test(token))return show('أدخل رمزاً مكوناً من 6 أرقام.','error');
-  $('verify').disabled=true;
-  const {data,error}=await supabase.auth.verifyOtp({email:ADMIN_EMAIL,token,type:'email'});
-  $('verify').disabled=false;
-  if(error)return show('فشل التحقق: '+friendlyError(error),'error');
-  if(!data.session)return show('تم التحقق لكن لم تُنشأ جلسة دخول.','error');
-  await ensureAdmin();
+ ADMIN_EMAIL=$('identity').value.trim().toLowerCase();
+ const token=$('code').value.trim();
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ADMIN_EMAIL))return show('أدخل البريد الإداري أولاً.','error');
+ if(!/^\d{6}$/.test(token))return show('أدخل رمزاً مكوناً من 6 أرقام.','error');
+ $('verify').disabled=true;const {data,error}=await supabase.auth.verifyOtp({email:ADMIN_EMAIL,token,type:'email'});$('verify').disabled=false;
+ if(error)return show('فشل التحقق: '+friendlyError(error),'error');if(!data.session)return show('تم التحقق لكن لم تُنشأ جلسة دخول.','error');await ensureAdmin();
 }
-$('send').onclick=()=>sendOtp(false);
-$('resend').onclick=()=>sendOtp(true);
-$('verify').onclick=verify;
-$('code').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));
-
+$('send').onclick=()=>sendOtp(false);$('resend').onclick=()=>sendOtp(true);$('verify').onclick=verify;
+$('code').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));$('identity').addEventListener('keydown',e=>{if(e.key==='Enter')sendOtp(false)});
 supabase.auth.getSession().then(({data})=>{if(data.session)ensureAdmin()});
-</script>
-</body></html>
+</script></body></html>
