@@ -57,7 +57,12 @@ function friendlyError(error){
 async function ensureAdmin(){
   const {data:{session}}=await supabase.auth.getSession();
   if(!session)return false;
-  const {data:profile}=await supabase.from('profiles').select('role').eq('id',session.user.id).maybeSingle();
+  let {data:profile}=await supabase.from('profiles').select('role').eq('id',session.user.id).maybeSingle();
+  if(!profile){
+    const {data:created,error}=await supabase.from('profiles').upsert({id:session.user.id,role:'admin',email:ADMIN_EMAIL,verification_status:'approved'},{onConflict:'id'}).select('role').single();
+    if(error){show('تم التحقق من البريد لكن تعذر إنشاء ملف الإدارة.','error');return false;}
+    profile=created;
+  }
   if(profile?.role!=='admin'){
     await supabase.auth.signOut();
     show('الحساب مسجل الدخول لكنه غير مصرح له بدخول الإدارة.','error');
